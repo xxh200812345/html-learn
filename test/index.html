@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLite in Browser</title>
+</head>
+
+<body>
+    <input type="file" id="fileInput" />
+    <table id="resultsTable" border="1">
+        <thead>
+            <tr>
+                <!-- Add your table headers here -->
+                <th>ID</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Table data will be inserted here -->
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.1/${file}` }).then(SQL => {
+                        const Uints = new Uint8Array(reader.result);
+                        const db = new SQL.Database(Uints);
+                        const contents = db.exec("SELECT * FROM your_table_name"); // Replace with your table name
+                        displayResults(contents);
+                    });
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        function displayResults(contents) {
+            const tableBody = document.querySelector('#resultsTable tbody');
+            tableBody.innerHTML = ''; // Clear previous results
+            if (contents.length > 0) {
+                const rows = contents[0].values;
+                rows.forEach(row => {
+                    const tr = document.createElement('tr');
+                    row.forEach(cell => {
+                        const td = document.createElement('td');
+                        td.textContent = cell;
+                        tr.appendChild(td);
+                    });
+                    tableBody.appendChild(tr);
+                });
+            } else {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 2;
+                td.textContent = 'No data found';
+                tr.appendChild(td);
+                tableBody.appendChild(tr);
+            }
+        }
+    </script>
+</body>
+
+</html>
