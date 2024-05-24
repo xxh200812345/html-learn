@@ -9,10 +9,10 @@
 
 <body>
     <input type="file" id="fileInput" />
+    <button onclick="generateData()">生成数据</button>
     <table id="resultsTable" border="1">
         <thead>
             <tr>
-                <!-- Add your table headers here -->
                 <th>ID</th>
                 <th>Name</th>
             </tr>
@@ -23,6 +23,8 @@
     </table>
 
     <script>
+        let db;
+
         document.getElementById('fileInput').addEventListener('change', function (event) {
             const file = event.target.files[0];
             if (file) {
@@ -30,14 +32,29 @@
                 reader.onload = function () {
                     initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.1/${file}` }).then(SQL => {
                         const Uints = new Uint8Array(reader.result);
-                        const db = new SQL.Database(Uints);
-                        const contents = db.exec("SELECT * FROM your_table_name"); // Replace with your table name
+                        db = new SQL.Database(Uints);
+                        const contents = db.exec("SELECT * FROM test_table");
                         displayResults(contents);
                     });
                 };
                 reader.readAsArrayBuffer(file);
             }
         });
+
+        function generateData() {
+            if (!db) {
+                alert('请先加载数据库文件');
+                return;
+            }
+
+            db.run("CREATE TABLE IF NOT EXISTS test_table (id INTEGER, name TEXT)");
+            db.run("INSERT INTO test_table (id, name) VALUES (1, 'Alice')");
+            db.run("INSERT INTO test_table (id, name) VALUES (2, 'Bob')");
+            db.run("INSERT INTO test_table (id, name) VALUES (3, 'Charlie')");
+
+            const contents = db.exec("SELECT * FROM test_table");
+            displayResults(contents);
+        }
 
         function displayResults(contents) {
             const tableBody = document.querySelector('#resultsTable tbody');
