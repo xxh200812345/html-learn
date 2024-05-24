@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>读取、修改和保存本地文件</title>
+</head>
+<body>
+    <input type="file" id="fileInput" />
+    <button onclick="loadFile()">读取文件内容</button>
+    <textarea id="fileContent" rows="10" cols="50"></textarea>
+    <button onclick="saveFile()">保存修改后的文件</button>
+
+    <script>
+        function loadFile() {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length === 0) {
+                alert('请选择一个文件');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const content = event.target.result;
+                document.getElementById('fileContent').value = content;
+            };
+
+            reader.readAsText(file);
+        }
+
+        function saveFile() {
+            const content = document.getElementById('fileContent').value;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'modified_file.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
