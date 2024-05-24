@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safari 读取和存储本地文件</title>
+</head>
+<body>
+    <input type="file" id="fileInput" />
+    <button onclick="saveFile()">保存文件内容到 localStorage</button>
+    <button onclick="loadFile()">从 localStorage 读取文件内容</button>
+    <div id="fileContent"></div>
+
+    <script>
+        function saveFile() {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length === 0) {
+                alert('请选择一个文件');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const content = event.target.result;
+                localStorage.setItem('fileContent', content);
+                alert('文件内容已保存到 localStorage');
+            };
+
+            reader.readAsText(file);
+        }
+
+        function loadFile() {
+            const content = localStorage.getItem('fileContent');
+            if (content) {
+                document.getElementById('fileContent').innerText = content;
+            } else {
+                alert('localStorage 中没有存储的文件内容');
+            }
+        }
+    </script>
+</body>
+</html>
