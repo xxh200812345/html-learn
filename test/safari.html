@@ -8,14 +8,17 @@
 </head>
 
 <body>
-
     <h1>Text to Speech Demo</h1>
+    <p>ver.0849</p>
 
     <textarea id="textToSpeak" rows="4" cols="50">Hello, world! This is a text to speech demo.</textarea><br>
-    <button onclick="speakTextSafari()">Speak</button>
+    <button onclick="speakTextSafari('en-US')">Speak</button>
+    <textarea id="textToSpeak" rows="4" cols="50">中文语音测试。你好，我是中文的声音。</textarea><br>
+    <button onclick="speakTextSafari('zh-cn')">Speak</button>
 
     <script>
-        function speakTextSafari() {
+        
+        function speakTextSafari(lang) {
             var text = document.getElementById('textToSpeak').value;
 
             // 创建一个新的语音合成对象
@@ -23,7 +26,7 @@
             var utterance = new SpeechSynthesisUtterance(text);
 
             // 设置语言和其他属性（可选）
-            utterance.lang = 'zh-cn'; // 英语（美国）
+            utterance.lang = lang; // 英语（美国）
             utterance.rate = 1.0; // 语速，默认值为 1.0
 
             // 调用语音合成对象的 speak 方法开始朗读
