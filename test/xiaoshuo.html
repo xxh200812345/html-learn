@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>小说阅读器</title>
+<style>
+  #chapterList {
+    width: 200px;
+  }
+  #contentArea {
+    width: 80%;
+    height: 400px;
+  }
+</style>
+</head>
+<body>
+  <input type="file" id="fileInput">
+  <select id="chapterList"></select>
+  <textarea id="contentArea" readonly></textarea>
+
+<script>
+  const fileInput = document.getElementById('fileInput');
+  const chapterList = document.getElementById('chapterList');
+  const contentArea = document.getElementById('contentArea');
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const text = e.target.result;
+      // 检测文件编码，如果没有指定编码，则默认为 UTF-8
+      const encoding = detectEncoding(text) || 'UTF-8';
+
+      // 使用 TextDecoder 按照检测到的编码解码
+      const decoder = new TextDecoder(encoding);
+      const decodedText = new TextDecoder(encoding).decode(new Uint8Array(text));
+
+      const chapters = decodedText.split(/第\d+章\s+/); // 按章节分割
+      chapters.shift(); // 去掉开头的空章节
+
+      chapterList.innerHTML = ''; // 清空目录
+      chapters.forEach((chapter, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.text = `第${index + 1}章 ${chapter.split('\n')[0]}`; // 取章节标题
+        chapterList.add(option);
+      });
+
+      chapterList.selectedIndex = 0; // 默认选中第一章
+      contentArea.value = chapters[0];
+    };
+
+    reader.readAsArrayBuffer(file); // 以 ArrayBuffer 形式读取文件
+  });
+
+  chapterList.addEventListener('change', () => {
+    const selectedIndex = chapterList.value;
+    const chapters = contentArea.value.split(/第\d+章\s+/);
+    chapters.shift();
+    contentArea.value = chapters[selectedIndex];
+  });
+
+  // 简单的编码检测函数，可以根据需要替换为更精确的检测方法
+  function detectEncoding(text) {
+    const encodings = ['UTF-8', 'GBK', 'Shift_JIS']; // 常用编码列表
+    for (const encoding of encodings) {
+      try {
+        new TextDecoder(encoding).decode(text);
+        return encoding; // 如果解码成功，则返回编码
+      } catch (error) {}
+    }
+    return null; // 未能检测到编码
+  }
+</script>
+
+</body>
+</html>
